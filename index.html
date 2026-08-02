@@ -757,7 +757,10 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
 @media (max-width:900px){.demoform{padding:30px 22px 34px}.dchips{gap:10px}}
 @media (prefers-reduced-motion: reduce){.dbg{animation:none}}
 
-gmp-place-autocomplete{width:100%;display:block}
+gmp-place-autocomplete{width:100%;display:block;box-sizing:border-box;
+  background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.22);border-radius:10px;
+  color-scheme:dark;overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease}
+gmp-place-autocomplete:focus-within{border-color:var(--teal);box-shadow:0 0 0 3px rgba(89,182,168,.28)}
 </style></head><body>
 
 <header id="hdr">
@@ -1241,7 +1244,7 @@ gmp-place-autocomplete{width:100%;display:block}
         </div>
         <div class="fld">
           <label for="dPractice">Name of practice</label>
-          <input type="text" id="dPractice" name="practice" placeholder="Start typing your practice name&hellip;" autocomplete="off" required>
+          <input type="text" id="dPractice" name="practice" placeholder="Your practice name" autocomplete="off" required>
         </div>
         <div class="fld fld-wide">
           <label for="dAddress">Practice address</label>
@@ -1497,7 +1500,7 @@ gmp-place-autocomplete{width:100%;display:block}
 
     if(!practice){
       note.style.color='#F9DEB2';
-      note.textContent='Please enter your practice name (or pick it from the suggestions).';
+      note.textContent='Please enter your practice name.';
       return;
     }
     if(!address){
@@ -1557,7 +1560,6 @@ gmp-place-autocomplete{width:100%;display:block}
   function initArivoraPlaces(){
     if(!(window.google && google.maps && google.maps.places)) return;
     var addressInput=document.getElementById('dAddress');
-    var practiceInput=document.getElementById('dPractice');
     var P=google.maps.places;
 
     // ── New-style (required for accounts created after Mar 2025) ──
@@ -1588,12 +1590,6 @@ gmp-place-autocomplete{width:100%;display:block}
       mount(addressInput, function(p){
         if(p.formattedAddress) addressInput.value=p.formattedAddress;
       });
-      mount(practiceInput, function(p){
-        if(p.displayName) practiceInput.value=(typeof p.displayName==='string')?p.displayName:(p.displayName.text||'');
-        if(p.formattedAddress && !addressInput.value) addressInput.value=p.formattedAddress;
-        var num=document.getElementById('dContactNum');
-        if(p.nationalPhoneNumber && num && !num.value) num.value=p.nationalPhoneNumber;
-      });
       return;
     }
 
@@ -1603,16 +1599,6 @@ gmp-place-autocomplete{width:100%;display:block}
       addressAC.addListener('place_changed', function(){
         var place=addressAC.getPlace();
         if(place && place.formatted_address) addressInput.value=place.formatted_address;
-      });
-      var practiceAC=new P.Autocomplete(practiceInput,{ types:['establishment'], fields:['name','formatted_address','formatted_phone_number'], componentRestrictions:{country:'nz'} });
-      practiceAC.addListener('place_changed', function(){
-        var place=practiceAC.getPlace();
-        if(!place) return;
-        if(place.name) practiceInput.value=place.name;
-        if(place.formatted_address && !addressInput.value) addressInput.value=place.formatted_address;
-        if(place.formatted_phone_number && !document.getElementById('dContactNum').value){
-          document.getElementById('dContactNum').value=place.formatted_phone_number;
-        }
       });
     }
   }
