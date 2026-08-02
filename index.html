@@ -1492,6 +1492,7 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
     var date=document.getElementById('dDate').value;
     var info=document.getElementById('dInfo').value.trim();
     var note=document.getElementById('demoNote');
+    var btn=form.querySelector('.demo-submit');
 
     if(!contactnumber || !email){
       note.style.color='#F9DEB2';
@@ -1500,22 +1501,41 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
       return;
     }
 
-    var lines=[
-      'Contact person: '+contact,
-      'Practice name: '+practice,
-      'Practice address: '+address,
-      'Contact number: '+(contactnumber||'\u2014'),
-      'Email: '+(email||'\u2014'),
-      'Total staff: '+staff,
-      'Preferred demo date: '+(date||'\u2014'),
-      'Additional info: '+(info||'\u2014')
-  ];
-    var body=encodeURIComponent(lines.join('\n'));
-    var subject=encodeURIComponent('Arivora Demo Request \u2014 '+(practice||contact));
-    window.location.href='mailto:REPLACE_EMAIL?subject='+subject+'&body='+body;
+    btn.disabled=true;
+    var prevLabel=btn.textContent;
+    btn.textContent='Sending\u2026';
+    note.style.color='';
+    note.textContent='';
 
-    thanks.classList.add('on');
-    form.style.display='none';
+    fetch('https://formspree.io/f/xvzejlbd', {
+      method:'POST',
+      headers:{ 'Accept':'application/json' },
+      body:(function(){
+        var fd=new FormData();
+        fd.append('Contact person', contact);
+        fd.append('Practice name', practice);
+        fd.append('Practice address', address);
+        fd.append('Contact number', contactnumber);
+        fd.append('email', email); // Formspree uses this as reply-to
+        fd.append('Total staff', staff);
+        fd.append('Preferred demo date', date || '\u2014');
+        fd.append('Additional info', info || '\u2014');
+        fd.append('_subject', 'Arivora Demo Request \u2014 '+(practice||contact));
+        return fd;
+      })()
+    }).then(function(res){
+      if(res.ok){
+        thanks.classList.add('on');
+        form.style.display='none';
+      } else {
+        return res.json().then(function(j){ throw new Error((j && j.errors && j.errors[0] && j.errors[0].message) || 'Submission failed'); });
+      }
+    }).catch(function(err){
+      btn.disabled=false;
+      btn.textContent=prevLabel;
+      note.style.color='#F9DEB2';
+      note.textContent='Something went wrong sending your request \u2014 please try again, or email us directly.';
+    });
   });
 
   // Optional: Google Places Autocomplete for the practice-name and address fields.
