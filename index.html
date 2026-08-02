@@ -757,6 +757,7 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
 @media (max-width:900px){.demoform{padding:30px 22px 34px}.dchips{gap:10px}}
 @media (prefers-reduced-motion: reduce){.dbg{animation:none}}
 
+gmp-place-autocomplete{width:100%;display:block}
 </style></head><body>
 
 <header id="hdr">
@@ -1494,6 +1495,16 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
     var note=document.getElementById('demoNote');
     var btn=form.querySelector('.demo-submit');
 
+    if(!practice){
+      note.style.color='#F9DEB2';
+      note.textContent='Please enter your practice name (or pick it from the suggestions).';
+      return;
+    }
+    if(!address){
+      note.style.color='#F9DEB2';
+      note.textContent='Please select your practice address from the suggestions.';
+      return;
+    }
     if(!contactnumber || !email){
       note.style.color='#F9DEB2';
       note.textContent='Please provide both a contact number and an email address.';
@@ -1542,34 +1553,68 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
   // This activates automatically once a Google Maps JS API script (with your own
   // API key and the "places" library) is present on the page. Add this before
   // </body>, using your own key:
-  //   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places&callback=initArivoraPlaces" async defer><\/script>
+  //   <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&libraries=places&loading=async&callback=initArivoraPlaces" async defer><\/script>
   function initArivoraPlaces(){
     if(!(window.google && google.maps && google.maps.places)) return;
     var addressInput=document.getElementById('dAddress');
     var practiceInput=document.getElementById('dPractice');
+    var P=google.maps.places;
 
-    var addressAC=new google.maps.places.Autocomplete(addressInput,{
-      fields:['formatted_address'],
-      componentRestrictions:{country:'nz'}
-    });
-    addressAC.addListener('place_changed', function(){
-      var place=addressAC.getPlace();
-      if(place && place.formatted_address) addressInput.value=place.formatted_address;
-    });
+    // ── New-style (required for accounts created after Mar 2025) ──
+    if(P.PlaceAutocompleteElement){
+      function mount(input, onPlace){
+        try{
+          var el=new P.PlaceAutocompleteElement({ includedRegionCodes:['nz'] });
+          el.style.width='100%';
+          input.style.display='none';
+          input.required=false;
+          input.parentNode.insertBefore(el, input);
+          function handle(ev){
+            try{
+              var pred=ev.placePrediction;
+              var p=pred && pred.toPlace ? pred.toPlace() : (ev.place || null);
+              if(!p) return;
+              var done=function(){ onPlace(p); };
+              if(p.fetchFields){
+                p.fetchFields({ fields:['formattedAddress','displayName','nationalPhoneNumber'] }).then(done).catch(done);
+              } else { done(); }
+            }catch(e){}
+          }
+          el.addEventListener('gmp-select', handle);
+          el.addEventListener('gmp-placeselect', handle);
+          return el;
+        }catch(e){ input.style.display=''; return null; }
+      }
+      mount(addressInput, function(p){
+        if(p.formattedAddress) addressInput.value=p.formattedAddress;
+      });
+      mount(practiceInput, function(p){
+        if(p.displayName) practiceInput.value=(typeof p.displayName==='string')?p.displayName:(p.displayName.text||'');
+        if(p.formattedAddress && !addressInput.value) addressInput.value=p.formattedAddress;
+        var num=document.getElementById('dContactNum');
+        if(p.nationalPhoneNumber && num && !num.value) num.value=p.nationalPhoneNumber;
+      });
+      return;
+    }
 
-    var practiceAC=new google.maps.places.Autocomplete(practiceInput,{
-      types:['establishment'],
-      fields:['name','formatted_address','formatted_phone_number'],
-      componentRestrictions:{country:'nz'}
-    });
-    practiceAC.addListener('place_changed', function(){
-      var place=practiceAC.getPlace();
-      if(!place) return;
-      if(place.name) practiceInput.value=place.name;
-      if(place.formatted_address && !addressInput.value) addressInput.value=place.formatted_address;
-      if(place.formatted_phone_number && !document.getElementById('dContactNum').value){
+    // ── Legacy fallback (older accounts) ──
+    if(P.Autocomplete){
+      var addressAC=new P.Autocomplete(addressInput,{ fields:['formatted_address'], componentRestrictions:{country:'nz'} });
+      addressAC.addListener('place_changed', function(){
+        var place=addressAC.getPlace();
+        if(place && place.formatted_address) addressInput.value=place.formatted_address;
+      });
+      var practiceAC=new P.Autocomplete(practiceInput,{ types:['establishment'], fields:['name','formatted_address','formatted_phone_number'], componentRestrictions:{country:'nz'} });
+      practiceAC.addListener('place_changed', function(){
+        var place=practiceAC.getPlace();
+        if(!place) return;
+        if(place.name) practiceInput.value=place.name;
+        if(place.formatted_address && !addressInput.value) addressInput.value=place.formatted_address;
+        if(place.formatted_phone_number && !document.getElementById('dContactNum').value){
           document.getElementById('dContactNum').value=place.formatted_phone_number;
-        }});
+        }
+      });
+    }
   }
   window.initArivoraPlaces=initArivoraPlaces;
   if(window.google && google.maps && google.maps.places) initArivoraPlaces();
@@ -1646,5 +1691,5 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
 })();
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwuZMrzsmXvGEcN10HA2I00FsCkWkg6UY&libraries=places&callback=initArivoraPlaces" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAfIx6-I4RPl-YouQlJE_xIcRuVZmQBU8&libraries=places&loading=async&callback=initArivoraPlaces" async defer></script>
 </body></html>
