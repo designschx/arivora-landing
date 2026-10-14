@@ -358,7 +358,7 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
 .plans-sec .eye::before{content:"";width:40px;height:40px;background:var(--star-bullet) no-repeat center/contain;flex-shrink:0}
 .plans-sec h2{font-size:clamp(30px,4vw,52px);font-weight:800;letter-spacing:-.038em;line-height:1.1;margin-top:20px}
 .plans-sec .lede{margin-top:20px;font-size:clamp(16.5px,1.7vw,19.5px);line-height:1.6;max-width:90ch;color:var(--ink-72)}
-.plangrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px;align-items:start}
+.plangrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:56px;align-items:stretch}
 @property --sweep{syntax:'<angle>';inherits:false;initial-value:0deg}
 .pl{position:relative;border-radius:18px;padding:36px 30px 34px;display:flex;flex-direction:column;
   min-height:430px;border:1px solid var(--br-42);background:#fff;
@@ -375,6 +375,9 @@ h1{font-size:clamp(38px,4.4vw,60px);font-weight:800;letter-spacing:-.042em;line-
 .pl .pn{font-size:22px;font-weight:800;letter-spacing:-.024em;padding-bottom:16px;margin-bottom:20px;
   border-bottom:1px solid var(--br-42);position:relative}
 .pl .pn::after{content:"";position:absolute;left:0;bottom:-1px;width:38px;height:2px;border-radius:2px;background:var(--bronze)}
+.pl .pn .pt{display:block;margin-top:6px;font-size:14.5px;font-weight:500;letter-spacing:0;color:var(--ink-72)}
+.pl-elite .pn .pt{color:rgba(12,53,77,.78)}
+.pl li.plus{font-weight:700;color:var(--navy)}
 .pl ul{list-style:none;margin-bottom:28px}
 .pl li{position:relative;padding-left:22px;font-size:14.5px;line-height:1.5;margin-bottom:13px;color:var(--ink-72)}
 .pl li::before{content:"";position:absolute;left:0;top:.5em;width:7px;height:7px;border-radius:50%;background:var(--teal)}
@@ -992,23 +995,24 @@ gmp-place-autocomplete:focus-within{border-color:var(--teal);box-shadow:0 0 0 3p
     <p class="lede">Choose the plan that fits your practice today &mdash; and move up whenever you&rsquo;re ready.</p>
     <div class="plangrid">
       <div class="pl">
-        <div class="pn">Essentials</div>
-        <ul><li>Up to 3 system integrations</li><li>Core operational dashboard</li>
-          <li>Key automations &mdash; reminders &amp; reporting</li><li>Email &amp; phone support</li>
-          <li>Individual staff access</li></ul>
+        <div class="pn">Essentials<span class="pt">For practices getting organised</span></div>
+        <ul><li>Core operational dashboard</li><li>Staff Hub and HR reporting</li>
+          <li>Practice and staff compliance</li><li>Ora Observer</li>
+          <li>Up to 3 custom modules</li><li>Email &amp; phone support</li></ul>
         <a class="pbtn pb-sand" href="#demo-page">Request a Trial</a>
       </div>
       <div class="pl pl-elite">
-        <div class="pn">Elite</div>
-        <ul><li>Unlimited integrations</li><li>Full automation suite</li>
-          <li>Institutional memory module</li><li>Priority support</li>
-          <li>Individual staff access</li></ul>
+        <div class="pn">Elite<span class="pt">For practices ready to do more</span></div>
+        <ul><li class="plus">Everything in Essentials, plus:</li><li>Unlimited custom modules</li>
+          <li>Up to 5 custom integrations</li><li>Individual staff portal</li>
+          <li>Ora Assistant</li><li>Priority email &amp; phone support</li></ul>
         <a class="pbtn pb-navy" href="#demo-page">Request a Trial</a>
       </div>
       <div class="pl">
-        <div class="pn">Network</div>
-        <ul><li>Everything in Elite</li><li>Cross-clinic visibility</li>
-          <li>Custom integrations &amp; SLA</li><li>Dedicated success manager</li></ul>
+        <div class="pn">Network<span class="pt">For practices with more than one site</span></div>
+        <ul><li class="plus">Everything in Elite, plus:</li><li>Shared policies, templates &amp; knowledge across sites</li>
+          <li>Group-wide reporting &amp; insights</li><li>Group-level roles &amp; access control</li>
+          <li>Unlimited custom integrations</li><li>Ora Advisor</li></ul>
         <a class="pbtn pb-sand" href="#demo-page">Talk to us</a>
       </div>
     </div>
